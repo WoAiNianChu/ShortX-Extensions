@@ -26,6 +26,7 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         maven(url = "https://jitpack.io")
+        maven(url = "https://maven.aliyun.com/repository/public")
         jcenter()
         mavenLocal()
         maven {

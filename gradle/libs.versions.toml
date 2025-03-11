@@ -43,6 +43,7 @@ tinypinyin = { module = "com.github.promeg:tinypinyin", version.ref = "tinypinyi
 apksig = { module = "com.android.tools.build:apksig", version.ref = "apksig" }
 ui-base = { module = "shortx:ui-base", version.ref = "shortx" }
 core = { module = "shortx:core", version.ref = "shortx" }
+shortx-ext-utils = { module = "shortx:external-utils", version.ref = "shortx" }
 
 [plugins]
 agp-lib = { id = "com.android.library", version.ref = "agp" }

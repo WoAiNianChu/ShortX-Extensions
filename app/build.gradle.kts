@@ -6,8 +6,12 @@ plugins {
     alias(libs.plugins.compose.compiler)
 }
 
-val extVersionCode = 4
-val extVersionName = "4.0"
+// 2000.1.1 millis
+val startOf2000 = 946684800000L
+val versionCodeByTime =
+    ((System.currentTimeMillis() - startOf2000) / 1000 / 60 / 10).toInt()
+val extVersionCode = versionCodeByTime
+val extVersionName = "5.0"
 
 android {
     namespace = "tornaco.apps.shortx.ext"
@@ -95,6 +99,8 @@ dependencies {
 
     implementation(libs.ui.base)
     implementation(libs.core)
+    implementation("io.reactivex.rxjava2:rxjava:2.2.21")
+    implementation("io.reactivex.rxjava2:rxandroid:2.0.1")
 
     implementation(libs.dagger.hilt.android)
     implementation(libs.dagger.hilt.navigation.compose)

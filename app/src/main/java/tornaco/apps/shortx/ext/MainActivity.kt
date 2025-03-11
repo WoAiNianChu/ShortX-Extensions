@@ -1,6 +1,6 @@
 package tornaco.apps.shortx.ext
 
-import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.graphics.createBitmap
 import dagger.hilt.android.AndroidEntryPoint
 import tornaco.apps.shortx.core.res.Remix
 import tornaco.apps.shortx.core.shortXManager
@@ -31,6 +32,8 @@ import tornaco.apps.shortx.ui.base.TipCard
 import tornaco.apps.shortx.ui.base.TipDialog
 import tornaco.apps.shortx.ui.base.rememberTipDialogState
 import tornaco.apps.shortx.ui.theme.ShortXTheme
+import java.io.File
+import java.io.FileOutputStream
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -89,12 +92,20 @@ fun MainContent() {
 
         LaunchedEffect(Unit) {
             ShortXCVApi().initCV()
-            ShortXPaddleApi(context).detect(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888))
+            ShortXPaddleApi(context).detect(createBitmap(1, 1))
             ShortXPaddleApi(context).recognizeText(
-                Bitmap.createBitmap(
-                    1,
-                    1,
-                    Bitmap.Config.ARGB_8888
+                createBitmap(1, 1)
+            )
+
+            val screenFile = File(context.externalCacheDir, "screen.png")
+            screenFile.parentFile?.mkdirs()
+            context.resources.openRawResource(R.raw.screen1).use {
+                it.copyTo(FileOutputStream(screenFile))
+            }
+            ShortXPaddleApi(context).recognizeText(
+                BitmapFactory.decodeResource(
+                    context.resources,
+                    R.raw.screen1
                 )
             )
         }

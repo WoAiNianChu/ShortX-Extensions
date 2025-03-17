@@ -52,9 +52,9 @@ class ShortXPaddleApi(private val context: Context) {
 
     fun recognizeText(
         image: Bitmap
-    ): Array<String> {
+    ): String {
         val result = ocr.recognizeText(ImageWrapper.ofBitmap(image), 4, true)
         logger.d("recognizeText: $result")
-        return result
+        return result.joinToString("")
     }
 }

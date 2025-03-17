@@ -99,8 +99,6 @@ dependencies {
 
     implementation(libs.ui.base)
     implementation(libs.core)
-    implementation("io.reactivex.rxjava2:rxjava:2.2.21")
-    implementation("io.reactivex.rxjava2:rxandroid:2.0.1")
 
     implementation(libs.dagger.hilt.android)
     implementation(libs.dagger.hilt.navigation.compose)
@@ -120,6 +118,8 @@ dependencies {
 
     implementation(project(":paddleocr"))
     implementation(project(":org.opencv-4.8.0"))
+
+    implementation(libs.tesseract4android.openmp)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

@@ -4,9 +4,11 @@ import android.content.Context
 import android.graphics.Bitmap
 import autojs.api.OcrPaddle
 import autojs.image.ImageWrapper
+import tornaco.apps.shortx.core.proto.toProtoRect
 import tornaco.apps.shortx.core.util.Logger
 import tornaco.apps.shortx.ext.api.ExtAppAssetsHelper
 
+@Deprecated("Native crash on some Android device.")
 class ShortXPaddleApi(private val context: Context) {
     private val logger = Logger("ShortXPaddleApi")
 
@@ -34,22 +36,24 @@ class ShortXPaddleApi(private val context: Context) {
 
     fun detect(
         image: Bitmap,
-        cpuThreadNum: Int = 4,
-        useSlim: Boolean = false
+        text: String
     ): List<ByteArray> {
-        val result = ocr.detect(ImageWrapper.ofBitmap(image), cpuThreadNum, useSlim)
+        val result = ocr.detect(ImageWrapper.ofBitmap(image), 4, true)
         logger.d("Detect: $result")
-        return result.map {
-            it.toProtoResult().toByteArray()
+        val textBlocks = result.map {
+            TextBlock(
+                it.label,
+                it.bounds
+            )
         }
+        val matched = findBoundingRects(textBlocks, text)
+        return matched.map { it.toProtoRect().toByteArray() }
     }
 
     fun recognizeText(
-        image: Bitmap,
-        cpuThreadNum: Int = 4,
-        useSlim: Boolean = true
+        image: Bitmap
     ): Array<String> {
-        val result = ocr.recognizeText(ImageWrapper.ofBitmap(image), cpuThreadNum, useSlim)
+        val result = ocr.recognizeText(ImageWrapper.ofBitmap(image), 4, true)
         logger.d("recognizeText: $result")
         return result
     }

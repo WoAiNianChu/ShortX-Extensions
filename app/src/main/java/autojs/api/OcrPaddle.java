@@ -2,7 +2,6 @@ package autojs.api;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.os.Looper;
 import android.util.Log;
 
 import com.baidu.paddle.lite.ocr.OcrResult;
@@ -27,15 +26,7 @@ public class OcrPaddle {
 
     public synchronized boolean init(boolean useSlim) {
         if (!predictor.isLoaded || useSlim != predictor.isUseSlim()) {
-            if (Looper.getMainLooper() == Looper.myLooper()) {
-                VolatileDispose<Boolean> result = new VolatileDispose<>();
-                new Thread(() -> {
-                    result.setAndNotify(predictor.init(context, useSlim));
-                }).start();
-                return result.blockedGet(60_000);
-            } else {
-                return predictor.init(context, useSlim);
-            }
+            return predictor.init(context, useSlim);
         }
         return predictor.isLoaded;
     }

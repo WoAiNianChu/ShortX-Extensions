@@ -1,15 +1,16 @@
 [versions]
-agp = "8.3.2"
-kotlin = "2.1.10"
-dagger = "2.55"
+agp = "8.7.3"
+kotlin = "2.0.21"
+dagger = "2.52"
 coreKtx = "1.15.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 lifecycleRuntimeKtx = "2.8.7"
 activityCompose = "1.10.1"
-composeBom = "2025.02.00"
+composeBom = "2025.03.00"
 preferenceKtx = "1.2.1"
+tesseract4androidOpenmp = "4.8.0"
 tinypinyin = "3.0.0"
 apksig = "8.2.2"
 shortx = "1.1.2-SNAPSHOT"
@@ -39,6 +40,7 @@ dagger-hilt-android-testing = { module = "com.google.dagger:hilt-android-testing
 dagger-hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "dagger" }
 dagger-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version = "1.2.0" }
 hiddenapibypass = { module = "org.lsposed.hiddenapibypass:hiddenapibypass", version = "4.3" }
+tesseract4android-openmp = { module = "cz.adaptech.tesseract4android:tesseract4android-openmp", version.ref = "tesseract4androidOpenmp" }
 tinypinyin = { module = "com.github.promeg:tinypinyin", version.ref = "tinypinyin" }
 apksig = { module = "com.android.tools.build:apksig", version.ref = "apksig" }
 ui-base = { module = "shortx:ui-base", version.ref = "shortx" }

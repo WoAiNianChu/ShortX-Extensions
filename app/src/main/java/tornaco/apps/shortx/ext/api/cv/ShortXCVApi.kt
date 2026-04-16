@@ -239,7 +239,7 @@ class ShortXCVApi {
                 Imgproc.CHAIN_APPROX_SIMPLE
             )
             return contours.mapNotNull { contour ->
-                contour.toColorRegionSnapshot(searchRect)
+                contour.toColorRegionSnapshot(mask, searchRect)
             }
         } finally {
             contours.forEach { OpenCVHelper.release(it) }
@@ -248,7 +248,7 @@ class ShortXCVApi {
         }
     }
 
-    private fun MatOfPoint.toColorRegionSnapshot(searchRect: Rect?): ColorRegionSnapshot? {
+    private fun MatOfPoint.toColorRegionSnapshot(mask: Mat, searchRect: Rect?): ColorRegionSnapshot? {
         if (rows() <= 0 || cols() <= 0) {
             return null
         }
@@ -258,6 +258,8 @@ class ShortXCVApi {
         }
         val translatedContour = translateContour(this, -localBounds.x.toDouble(), -localBounds.y.toDouble())
         val regionMask = Mat.zeros(localBounds.height, localBounds.width, CvType.CV_8UC1)
+        val maskRegion = Mat(mask, localBounds)
+        val exactMatchMask = Mat()
         try {
             Imgproc.drawContours(
                 regionMask,
@@ -266,7 +268,8 @@ class ShortXCVApi {
                 Scalar(255.0),
                 Imgproc.FILLED
             )
-            val pixelCount = Core.countNonZero(regionMask)
+            Core.bitwise_and(maskRegion, regionMask, exactMatchMask)
+            val pixelCount = Core.countNonZero(exactMatchMask)
             if (pixelCount <= 0) {
                 return null
             }
@@ -278,12 +281,18 @@ class ShortXCVApi {
                 localBounds.width,
                 localBounds.height,
             )
-            val center = computeContourCenter(this, localBounds, offsetX, offsetY)
             val samplePoints = extractRegionSamplePoints(
-                regionMask = regionMask,
+                regionMask = exactMatchMask,
                 localBounds = localBounds,
                 offsetX = offsetX,
                 offsetY = offsetY,
+            )
+            val center = computeRegionCenter(
+                regionMask = exactMatchMask,
+                localBounds = localBounds,
+                offsetX = offsetX,
+                offsetY = offsetY,
+                fallbackPoint = samplePoints.firstOrNull(),
             )
             return ColorRegionSnapshot(
                 bounds = absoluteBounds,
@@ -294,29 +303,37 @@ class ShortXCVApi {
         } finally {
             OpenCVHelper.release(translatedContour)
             OpenCVHelper.release(regionMask)
+            OpenCVHelper.release(maskRegion)
+            OpenCVHelper.release(exactMatchMask)
         }
     }
 
-    private fun computeContourCenter(
-        contour: MatOfPoint,
+    private fun computeRegionCenter(
+        regionMask: Mat,
         localBounds: OpenCVRect,
         offsetX: Int,
         offsetY: Int,
+        fallbackPoint: CvJsonPoint?,
     ): CvJsonPoint {
-        val moments = Imgproc.moments(contour)
-        val centerX = if (moments.m00 != 0.0) {
-            (moments.m10 / moments.m00).roundToInt()
-        } else {
-            localBounds.x + localBounds.width / 2
+        val moments = Imgproc.moments(regionMask, true)
+        if (moments.m00 != 0.0) {
+            val localCenterX = (moments.m10 / moments.m00).roundToInt()
+            val localCenterY = (moments.m01 / moments.m00).roundToInt()
+            if (regionMask.isNonZeroAt(localCenterX, localCenterY)) {
+                return CvJsonPoint(
+                    x = localBounds.x + localCenterX + offsetX,
+                    y = localBounds.y + localCenterY + offsetY,
+                )
+            }
         }
-        val centerY = if (moments.m00 != 0.0) {
-            (moments.m01 / moments.m00).roundToInt()
-        } else {
-            localBounds.y + localBounds.height / 2
+
+        if (fallbackPoint != null) {
+            return fallbackPoint
         }
+
         return CvJsonPoint(
-            x = centerX + offsetX,
-            y = centerY + offsetY,
+            x = localBounds.x + localBounds.width / 2 + offsetX,
+            y = localBounds.y + localBounds.height / 2 + offsetY,
         )
     }
 
